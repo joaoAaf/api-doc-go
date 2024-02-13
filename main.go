@@ -19,8 +19,18 @@ type Album struct {
 	Price  float64 `json:"price"`
 }
 
+type AlbumDTO struct {
+	Title  string  `json:"title"`
+	Artist string  `json:"artist"`
+	Price  float64 `json:"price"`
+}
+
 var albums = []Album{
-	{Id: 0, Title: "Exemple Title", Artist: "Exemple Artist", Price: 0.00},
+	{Id: 1, Title: "Exemple Title", Artist: "Exemple Artist", Price: 0.00},
+}
+
+func ConvertAlbum(albumDto AlbumDTO) Album {
+	return Album{Id: len(albums) + 1, Title: albumDto.Title, Artist: albumDto.Artist, Price: albumDto.Price}
 }
 
 // "gin.Context" carrega os detalhes da solicitação,
@@ -30,8 +40,21 @@ func getAlbums(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, albums)
 }
 
+func postAlbums(c *gin.Context) {
+	var newAlbum AlbumDTO
+	// "c.BindJSON" recebe o JSON do corpo da requisição
+	// e converte para newAlbum
+	if err := c.BindJSON(&newAlbum); err != nil {
+		return
+	}
+	album := ConvertAlbum(newAlbum)
+	albums = append(albums, album)
+	c.IndentedJSON(http.StatusCreated, album)
+}
+
 func main() {
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
+	router.POST("/albums", postAlbums)
 	router.Run(":8080")
 }
