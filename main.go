@@ -25,12 +25,15 @@ type AlbumDTO struct {
 	Price  float64 `json:"price"`
 }
 
-var albums = []Album{
-	{Id: 1, Title: "Exemple Title", Artist: "Exemple Artist", Price: 0.00},
-}
+var lastId int
+var albums = []Album{}
 
-func ConvertAlbum(albumDto AlbumDTO) Album {
-	return Album{Id: len(albums) + 1, Title: albumDto.Title, Artist: albumDto.Artist, Price: albumDto.Price}
+func (a *Album) ConvertAlbum(albumDto AlbumDTO) {
+	lastId += 1
+	a.Id = lastId
+	a.Title = albumDto.Title
+	a.Artist = albumDto.Artist
+	a.Price = albumDto.Price
 }
 
 // "gin.Context" carrega os detalhes da solicitação,
@@ -41,13 +44,14 @@ func getAlbums(c *gin.Context) {
 }
 
 func postAlbums(c *gin.Context) {
-	var newAlbum AlbumDTO
+	var albumDto AlbumDTO
+	var album Album
 	// "c.BindJSON" recebe o JSON do corpo da requisição
 	// e converte para newAlbum
-	if err := c.BindJSON(&newAlbum); err != nil {
+	if err := c.BindJSON(&albumDto); err != nil {
 		return
 	}
-	album := ConvertAlbum(newAlbum)
+	album.ConvertAlbum(albumDto)
 	albums = append(albums, album)
 	c.IndentedJSON(http.StatusCreated, album)
 }
