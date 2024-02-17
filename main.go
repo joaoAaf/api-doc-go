@@ -45,6 +45,20 @@ func (a *Album) ConvertAlbum(albumDto AlbumDTO) {
 	a.Price = albumDto.Price
 }
 
+func verifyId(strId string) Album {
+	var album Album
+	id, err := strconv.Atoi(strId)
+	if err != nil {
+		panic(err)
+	}
+	for _, a := range albums {
+		if a.Id == id {
+			album = a
+		}
+	}
+	return album
+}
+
 // "gin.Context" carrega os detalhes da solicitação,
 // pode validar e serializar o JSON de uma solicitação e
 // retornar uma resporta em JSON tambem.
@@ -55,15 +69,9 @@ func getAlbums(c *gin.Context) {
 func getAlbumById(c *gin.Context) {
 	// o "c.Param" retorna o parametro
 	// enviado pelo usuario por meio da url
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		panic(err)
-	}
-	for _, a := range albums {
-		if a.Id == id {
-			c.IndentedJSON(http.StatusOK, a)
-			return
-		}
+	album := verifyId(c.Param("id"))
+	if album.Id > 0 {
+		c.IndentedJSON(http.StatusOK, album)
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
