@@ -40,23 +40,29 @@ func addId() int {
 
 func (a *Album) ConvertAlbum(albumDto AlbumDTO) {
 	a.Id = addId()
+	a.updateAlbum(albumDto)
+}
+
+func (a *Album) updateAlbum(albumDto AlbumDTO) {
 	a.Title = albumDto.Title
 	a.Artist = albumDto.Artist
 	a.Price = albumDto.Price
 }
 
-func verifyId(strId string) Album {
-	var album Album
+func verifyId(strId string) (*Album, int) {
+	var album *Album
+	index := -1
 	id, err := strconv.Atoi(strId)
 	if err != nil {
 		panic(err)
 	}
-	for _, a := range albums {
-		if a.Id == id {
-			album = a
+	for i := 0; i < len(albums); i++ {
+		if albums[i].Id == id {
+			album = &albums[i]
+			index = i
 		}
 	}
-	return album
+	return album, index
 }
 
 // "gin.Context" carrega os detalhes da solicitação,
@@ -69,11 +75,22 @@ func getAlbums(c *gin.Context) {
 func getAlbumById(c *gin.Context) {
 	// o "c.Param" retorna o parametro
 	// enviado pelo usuario por meio da url
-	album := verifyId(c.Param("id"))
-	if album.Id > 0 {
+	album, _ := verifyId(c.Param("id"))
+	if album != nil {
 		c.IndentedJSON(http.StatusOK, album)
+		return
 	}
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
+}
+
+func putAlbumById(c *gin.Context) {
+	var albumDto AlbumDTO
+	album, _ := verifyId(c.Param("id"))
+	if err := c.BindJSON(&albumDto); err != nil {
+		return
+	}
+	album.updateAlbum(albumDto)
+	c.IndentedJSON(http.StatusOK, album)
 }
 
 func postAlbums(c *gin.Context) {
@@ -89,10 +106,18 @@ func postAlbums(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, album)
 }
 
+func deleteAlbumById(c *gin.Context) {
+	_, index := verifyId(c.Param("id"))
+	albums = append(albums[:index], albums[index+1:]...)
+	c.IndentedJSON(http.StatusNoContent, "")
+}
+
 func main() {
 	router := gin.Default()
 	router.GET("/albums", getAlbums)
 	router.GET("/albums/:id", getAlbumById)
+	router.PUT("/albums/:id", putAlbumById)
 	router.POST("/albums", postAlbums)
+	router.DELETE("/albums/:id", deleteAlbumById)
 	router.Run(":8080")
 }
