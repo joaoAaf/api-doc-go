@@ -30,6 +30,7 @@ func PutAlbumById(c *gin.Context) {
 	var albumDto dto.AlbumDTO
 	album, _ := service.VerifyId(c.Param("id"))
 	if err := c.BindJSON(&albumDto); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err})
 		return
 	}
 	if album != nil {
@@ -40,7 +41,7 @@ func PutAlbumById(c *gin.Context) {
 	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "album not found"})
 }
 
-func PostAlbums(c *gin.Context) {
+func PostAlbum(c *gin.Context) {
 	var albumDto dto.AlbumDTO
 	// "c.BindJSON" recebe o JSON do corpo da requisição
 	// e converte para newAlbum
