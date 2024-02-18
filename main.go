@@ -5,7 +5,7 @@
 package main
 
 import (
-	"api-doc-go/entity"
+	"api-doc-go/dto"
 	"api-doc-go/service"
 	"net/http"
 
@@ -31,7 +31,7 @@ func getAlbumById(c *gin.Context) {
 }
 
 func putAlbumById(c *gin.Context) {
-	var albumDto entity.AlbumDTO
+	var albumDto dto.AlbumDTO
 	album, _ := service.VerifyId(c.Param("id"))
 	if err := c.BindJSON(&albumDto); err != nil {
 		return
@@ -45,7 +45,7 @@ func putAlbumById(c *gin.Context) {
 }
 
 func postAlbums(c *gin.Context) {
-	var albumDto entity.AlbumDTO
+	var albumDto dto.AlbumDTO
 	// "c.BindJSON" recebe o JSON do corpo da requisição
 	// e converte para newAlbum
 	if err := c.BindJSON(&albumDto); err != nil {

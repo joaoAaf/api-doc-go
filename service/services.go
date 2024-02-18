@@ -1,6 +1,7 @@
 package service
 
 import (
+	"api-doc-go/dto"
 	"api-doc-go/entity"
 	"api-doc-go/repository"
 	"strconv"
@@ -19,7 +20,7 @@ func InsertAlbum(album entity.Album) {
 	repository.Albums = append(repository.Albums, album)
 }
 
-func UpdateAlbum(album *entity.Album, albumDto entity.AlbumDTO) {
+func UpdateAlbum(album *entity.Album, albumDto dto.AlbumDTO) {
 	album.Title = albumDto.Title
 	album.Artist = albumDto.Artist
 	album.Price = albumDto.Price
@@ -29,7 +30,7 @@ func DeleteAlbum(index int) {
 	repository.Albums = append(repository.Albums[:index], repository.Albums[index+1:]...)
 }
 
-func ConvertAlbum(albumDto entity.AlbumDTO) entity.Album {
+func ConvertAlbum(albumDto dto.AlbumDTO) entity.Album {
 	var album entity.Album
 	album.Id = AddId()
 	UpdateAlbum(&album, albumDto)
